@@ -13,18 +13,18 @@ const char* mqtt_server = "";
 const int mqtt_port = 1883;
 
 // Тема MQTT
-const char* mqtt_topic_temp1 = "temp1";
-const char* mqtt_topic_temp2 = "temp2";
-const char* mqtt_topic_temp3 = "temp3";
+const char* mqtt_topic_temp1 = "";
+const char* mqtt_topic_temp2 = "";
 
 const int tempPin = 15;
 
 OneWire oneWire(tempPin);
 DallasTemperature sensors(&oneWire);
 
-DeviceAddress sensor_temp1 = {0x28, 0x44, 0xC7, 0x46, 0xD4, 0x9C, 0x3C, 0x39};
-DeviceAddress sensor_temp2 = {0x28, 0xE1, 0x7D, 0x46, 0xD4, 0x5D, 0x7F, 0xA8};
-DeviceAddress sensor_temp3 = {0x28, 0xC7, 0xFB, 0x46, 0xD4, 0x6A, 0x19, 0x00};
+// пример указания ID для датчиков
+// DeviceAddress sensor_temp1 = {0x28, 0x44, 0xC7, 0x46, 0xD4, 0x9C, 0x3C, 0x39};
+DeviceAddress sensor_temp1 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+DeviceAddress sensor_temp2 = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
 // Клиент MQTT
 WiFiClient espClient;
@@ -57,7 +57,6 @@ void setup() {
       Serial.println("Подключено");
       client.subscribe(mqtt_topic_temp1);
       client.subscribe(mqtt_topic_temp2);
-      client.subscribe(mqtt_topic_temp3);
     } else {
       Serial.print("Ошибка подключения: ");
       Serial.println(client.state());
@@ -71,7 +70,6 @@ void loop() {
   sensors.requestTemperatures();
   int temp1 = sensors.getTempC(sensor_temp1);
   int temp2 = sensors.getTempC(sensor_temp2);
-  int temp3 = sensors.getTempC(sensor_temp3);
 
   // Отправка данных через MQTT
   char message[50];
@@ -79,8 +77,6 @@ void loop() {
   client.publish(mqtt_topic_temp1, message, true);
   sprintf(message, "%d", temp2);
   client.publish(mqtt_topic_temp2, message, true);
-  sprintf(message, "%d", temp3);
-  client.publish(mqtt_topic_temp3, message, true);
 
   // Обновление клиента MQTT
   client.loop();
